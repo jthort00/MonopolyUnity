@@ -1,0 +1,2 @@
+Conseguir que quan premem el botó connect es acnvii el color per exemple.ç
+Aconseguir aplicació dels threads amb unity (docs MessageParser.cs & ServerLogic.cs)
