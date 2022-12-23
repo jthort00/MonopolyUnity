@@ -7,6 +7,8 @@ TagManager:
   - Suelo
   - dado1
   - dado2
+  - row_comp
+  - logic
   layers:
   - Default
   - TransparentFX

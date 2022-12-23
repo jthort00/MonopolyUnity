@@ -15,9 +15,17 @@ public class LogicScript1 : MonoBehaviour
     public GameObject Intro_screen;
     public GameObject Login_screen;
     public GameObject Register_screen;
+    public GameObject Main_user_screen;
+    public GameObject row_stuff;
+    public text_button_script text_button;
     public InputField username;
     public InputField password;
+    public InputField newUsername;
+    public InputField newPassword;
+    public InputField confPassword;
+    public InputField age;
     public Text loginerror;
+    public Text registrationerror;
     static readonly object lockObject = new object();
     string returnData = "";
     bool newData = false;
@@ -39,18 +47,19 @@ public class LogicScript1 : MonoBehaviour
                 Debug.Log("Received: " + returnData);
                 switch (codigo)
                 {
-                    //case 1: // Respuesta a registrarse 
-                    //    mensaje = trozos[1];
-                    //    if (mensaje == "-2")
-                    //        MessageBox.Show("User already exists");
-                    //    if (mensaje == "-1")
-                    //        MessageBox.Show("Error!");
-                    //    if (mensaje == "0")
-                    //    {
-                    //        MessageBox.Show("Successful registration");
-
-                    //    }
-                    //    break;
+                    case 1: // Respuesta a registrarse 
+                        if (mensaje == "-2")
+                            registrationerror.text = "User already exists";
+                        if (mensaje == "-1")
+                            registrationerror.text = "Error!";
+                        if (mensaje == "0")
+                        {
+                            registrationerror.text = "Successful registration";
+                            Thread.Sleep(1000);
+                            Register_screen.SetActive(false);
+                            Login_screen.SetActive(true);
+                        }
+                        break;
 
                     case 2: // Respuesta a iniciar sesión 
                         if (mensaje == "0")
@@ -59,8 +68,39 @@ public class LogicScript1 : MonoBehaviour
                         }
                         if (mensaje == "1")
                         {
-                            loginerror.text = "Muy bien, hagamos una fiesta";
+                            Main_user_screen.SetActive(true);
+                            Login_screen.SetActive(false);
+                            mensaje = "4/" + username.text;
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                            server.Send(msg);
+                            
                         }
+                        break;
+
+                    case 4: // Conseguir todas las partidas en las que está el usuario 
+                        if (mensaje != "-1")
+                        {
+                            string[] parts = mensaje.Split('$');
+                            int i = 0;
+                            while (i+1 < parts.Length)
+                            {
+                                string[] parts1 = parts[i].Split('/');
+                                if (parts1[3] == "0")
+                                    parts1[3] = "No";
+
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[0]);
+                                text_button = GameObject.FindGameObjectsWithTag("row_comp")[GameObject.FindGameObjectsWithTag("row_comp").Length - 1].GetComponent<text_button_script>();
+                                text_button.clickable = 1;
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[1]);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[2]);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[4]);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[3]);
+                                Debug.Log("Added row");
+                                i = i + 1;
+
+                            }
+                        }
+        
                         break;
                 }
 
@@ -120,8 +160,6 @@ public class LogicScript1 : MonoBehaviour
             //Recibimos mensaje del servidor
             byte[] msg2 = new byte[500];
             server.Receive(msg2);
-            Debug.Log("Received a message");
-
             lock (lockObject)
             {
                 returnData = Encoding.ASCII.GetString(msg2);
@@ -136,4 +174,33 @@ public class LogicScript1 : MonoBehaviour
         Register_screen.SetActive(true);
     }
 
+    public void userRegistration()
+    {
+        if (confPassword.text == newPassword.text)
+        {
+            Boolean caracteres = newPassword.text.Contains("$");
+            Boolean caracteres2 = newPassword.text.Contains("/");
+            Boolean caracteres3 = newUsername.text.Contains("$");
+            Boolean caracteres4 = newUsername.text.Contains("/");
+            if (caracteres == false && caracteres2 == false && caracteres3 == false && caracteres4 == false)
+            {
+                string mensaje = "1/" + newUsername.text + "$" + newPassword.text + "$" + age.text;
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+            }
+            else
+                registrationerror.text = "La contraseña no puede contener los símbolos /, $";
+        }
+        else
+        {
+            registrationerror.text = "La contraseña no coincide";
+        }
+    }
+
+    public void GetGame(string gameID)
+    {
+        Debug.Log("you've clicked at " + gameID);
+    }
+
+  
 }

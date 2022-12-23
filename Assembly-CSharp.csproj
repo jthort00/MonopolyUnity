@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{AEE5AD48-A49E-08C4-6784-A1B407F93E09}</ProjectGuid>
+    <ProjectGuid>{6CB9435B-C119-B710-47EF-0CBD9818520D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -61,9 +61,13 @@
     <Compile Include="Assets\Scripts\Cara.cs" />
     <Compile Include="Assets\Login_screen_script.cs" />
     <Compile Include="Assets\Scripts\NumeroDadoText.cs" />
+    <Compile Include="Assets\populate_grid_script.cs" />
+    <Compile Include="Assets\prefab_row_script.cs" />
+    <Compile Include="Assets\text_button_script.cs" />
     <Compile Include="Assets\LogicScript1.cs" />
     <Compile Include="Assets\Scripts\Boton.cs" />
     <Compile Include="Assets\Scripts\MessageParser.cs" />
+    <Compile Include="Assets\register_screen_script.cs" />
     <Compile Include="Assets\Scripts\Players_Movement.cs" />
     <Compile Include="Assets\Intro_script.cs" />
     <Compile Include="Assets\Scripts\DiceCheck.cs" />
@@ -766,11 +770,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="UnityEditor.UI.csproj">
-      <Project>{9D41CB42-FCE6-B132-207E-CFCFED29E515}</Project>
+      <Project>{56946D99-6A21-8C15-719B-87DBBD34A6C7}</Project>
       <Name>UnityEditor.UI</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.csproj">
-      <Project>{BC9646D3-AB63-8634-50A6-F17E957B4DAA}</Project>
+      <Project>{2B3C9142-912D-4253-5316-18CA5412363F}</Project>
       <Name>UnityEngine.UI</Name>
     </ProjectReference>
   </ItemGroup>
