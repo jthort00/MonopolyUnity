@@ -19,6 +19,18 @@ public class text_button_script : MonoBehaviour, IPointerClickHandler
         logic.GetGame(this.GetComponent<Text>().text);
         onClick.Invoke();
         }
+
+        if (clickable ==2)
+        {
+            logic = GameObject.FindGameObjectWithTag("logic").GetComponent<LogicScript1>();
+            logic.InviteUser(this.GetComponent<Text>().text);
+            onClick.Invoke();
+        }
+    }
+
+    public void SetClickable(int value)
+    {
+        this.clickable = value;
     }
 
 

@@ -12,24 +12,46 @@ public class LogicScript1 : MonoBehaviour
 {
     public Text outcome;
     public Socket server;
+
     public GameObject Intro_screen;
     public GameObject Login_screen;
     public GameObject Register_screen;
     public GameObject Main_user_screen;
+    public GameObject Online_list_screen;
+    public GameObject Lobby_screen;
+    public GameObject Invitation_screen;
+
     public GameObject row_stuff;
+    public GameObject online_list_row;
+    public GameObject ingame_list_row;
     public text_button_script text_button;
+
     public InputField username;
     public InputField password;
     public InputField newUsername;
     public InputField newPassword;
     public InputField confPassword;
     public InputField age;
+
     public Text loginerror;
     public Text registrationerror;
+    public Text inviteerror;
+    public Text gamelobbytitle;
+    public Text invitationtext;
+    public Text invitationreplies;
+
+    public Button launchgame_button;
+
+    private int current_gameid;
+    private int invitation_gameid;
+    private int host = 0;
+    private int launched = 0; 
+    private string invitation_player;
+
     static readonly object lockObject = new object();
     string returnData = "";
     bool newData = false;
-
+    Thread listening;
 
     void Update()
     {
@@ -77,10 +99,24 @@ public class LogicScript1 : MonoBehaviour
                         }
                         break;
 
+                    case 3: // Respuesta a crear partida 
+                        string[] parts = mensaje.Split('/');
+                        if (parts[3] == "0")
+                            parts[3] = "No";
+                        row_stuff.GetComponent<populate_grid_script>().Populate(parts[0],1);
+                        row_stuff.GetComponent<populate_grid_script>().Populate(parts[1],0);
+                        row_stuff.GetComponent<populate_grid_script>().Populate(parts[2],0);
+                        row_stuff.GetComponent<populate_grid_script>().Populate(parts[4],0);
+                        row_stuff.GetComponent<populate_grid_script>().Populate(parts[3],0);
+                        current_gameid = Convert.ToInt32(parts[0]);
+                        gamelobbytitle.text = "Game " + current_gameid + " lobby";
+                        host = 1; 
+                        break;
+
                     case 4: // Conseguir todas las partidas en las que está el usuario 
                         if (mensaje != "-1")
                         {
-                            string[] parts = mensaje.Split('$');
+                            parts = mensaje.Split('$');
                             int i = 0;
                             while (i+1 < parts.Length)
                             {
@@ -88,20 +124,72 @@ public class LogicScript1 : MonoBehaviour
                                 if (parts1[3] == "0")
                                     parts1[3] = "No";
 
-                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[0]);
-                                text_button = GameObject.FindGameObjectsWithTag("row_comp")[GameObject.FindGameObjectsWithTag("row_comp").Length - 1].GetComponent<text_button_script>();
-                                text_button.clickable = 1;
-                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[1]);
-                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[2]);
-                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[4]);
-                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[3]);
-                                Debug.Log("Added row");
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[0],1);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[1],0);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[2],0);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[4],0);
+                                row_stuff.GetComponent<populate_grid_script>().Populate(parts1[3],0);
                                 i = i + 1;
 
                             }
                         }
-        
                         break;
+
+                    case 5: // Lista de conectados actualizada
+                        parts = mensaje.Split('/');
+                        if (mensaje != "0/null")
+                        {
+                            online_list_row.GetComponent<populate_online_grid_script>().Delete();
+                            int i = 1;
+                            while (i < parts.Length)
+                            {
+                                online_list_row.GetComponent<populate_online_grid_script>().Populate(parts[i],2);
+                                i = i + 1;
+                            }
+
+                        }
+                        break;
+
+                    case 7: // Notificación de que un jugador te ha invitado 
+                        parts = mensaje.Split('/');
+                        invitation_player = parts[0];
+                        invitation_gameid = Convert.ToInt32(parts[1]);
+                        Main_user_screen.SetActive(false);
+                        Invitation_screen.SetActive(true);
+                        invitationtext.text = invitation_player + " has invited you to a game";
+                        break;
+
+                    case 8: // Respuesta a una invitación. Se recibe una lista actualizada de los jugadores en la partida 
+                        parts = mensaje.Split('/');
+                        Debug.Log("He recibido respuesta a la invitación " + mensaje);
+                        ingame_list_row.GetComponent<populate_ingame_list_script>().Delete();
+                        if (parts[0] == "1")
+                        {
+                            invitationreplies.text = parts[1] + " has joined the game";
+                            invitationreplies.color = Color.green;
+                            int i = 1;
+                            while (i < parts.Length)
+                            {
+                                ingame_list_row.GetComponent<populate_ingame_list_script>().Populate(parts[i], 0);
+                                i = i + 1;
+                            }
+                        }
+
+                        if (parts[0] == "0")
+                        {
+                            invitationreplies.text = parts[1] + " has rejected the invitation";
+                            invitationreplies.color = Color.red;
+                        }
+                        break;
+
+                    case 10: //Es tu turno
+                        //Enable botó de tirar els daus
+                        break;
+
+
+
+
+
                 }
 
                 //Reset it for next read
@@ -125,7 +213,7 @@ public class LogicScript1 : MonoBehaviour
             server.Connect(ipep);//Intentamos conectar el socket
             Intro_screen.gameObject.SetActive(false);
             Login_screen.gameObject.SetActive(true);
-            Thread listening = new Thread(listenToServer);
+            listening = new Thread(listenToServer);
             listening.Start();
         }
         catch (SocketException)
@@ -199,8 +287,95 @@ public class LogicScript1 : MonoBehaviour
 
     public void GetGame(string gameID)
     {
-        Debug.Log("you've clicked at " + gameID);
+        Debug.Log("you've clicked at " + gameID + "work in progress");
     }
 
-  
+    public void CreateGame()
+    {
+        string mensaje = "3/" + username.text;
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
+        Lobby_screen.SetActive(true);
+        Main_user_screen.SetActive(false);
+        Online_list_screen.SetActive(true);
+    }
+
+    public void LogOut()
+    {
+        string mensaje = "6/" + username.text;
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
+        row_stuff.GetComponent<populate_grid_script>().Delete();
+        Main_user_screen.SetActive(false);
+        Login_screen.SetActive(true);
+        Register_screen.SetActive(false);
+        Online_list_screen.SetActive(false);
+    }
+
+    public void Disconnect()
+    {
+        string mensaje = "0/" + "Bye";
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
+        listening.Abort();
+        server.Shutdown(SocketShutdown.Both);
+        server.Close();
+        Login_screen.SetActive(false);
+        Intro_screen.SetActive(true);
+
+    }
+
+    public void ShowOnlineList()
+    {
+        if (Online_list_screen.activeSelf == true)
+            Online_list_screen.SetActive(false);
+        else
+            Online_list_screen.SetActive(true);
+    }
+
+    public void InviteUser(string username)
+    {
+        if (Lobby_screen.activeSelf==true && host == 1 && launched ==0)
+        {
+            if (string.Equals(this.username.text, username) == false)
+            {
+                string mensaje = "7/" + username + "/" + username + "/" + current_gameid;
+                byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+                server.Send(msg);
+            }
+            else
+                inviteerror.text = "You can't invite yourself";
+        }
+        
+    }
+
+    public void AcceptInvitation()
+    {
+        string mensaje = "8/" + invitation_player + "/" + username.text + "/" + invitation_gameid + "/1";
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
+        Invitation_screen.SetActive(false);
+        Lobby_screen.SetActive(true);
+        current_gameid = invitation_gameid;
+        gamelobbytitle.text = "Game " + current_gameid + " lobby";
+        launchgame_button.gameObject.SetActive(false);
+    }
+
+    public void RejectInvitation()
+    {
+        string mensaje = "8/" + invitation_player + "/" + username + "/" + invitation_gameid + "/0";
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
+        Invitation_screen.SetActive(false);
+    }
+
+    public void LaunchGame()
+    {
+        launched = 1;
+        //Botó a la pantalla principal per amagar o no la lobbyscreen
+        //Botó a la pantalla principal per tirar els daus i que retorni un número 
+        //Pujar el servidor al shiva/shiva2 per poder fer proves multijugador 
+        //Torns
+    }
+
 }

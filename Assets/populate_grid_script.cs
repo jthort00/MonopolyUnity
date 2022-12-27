@@ -6,25 +6,23 @@ using UnityEngine.UI;
 public class populate_grid_script : MonoBehaviour
 {
     public GameObject prefab;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void Populate(string test)
+    public void Populate(string content, int clickable)
     {
         GameObject newobj;
         for (int i = 0; i<1; i++)
         {
             newobj = (GameObject)Instantiate(prefab, transform);
-            newobj.GetComponent<Text>().text = test;
+            newobj.GetComponent<Text>().text = content;
+            newobj.GetComponent<text_button_script>().SetClickable(clickable);
+        }
+    }
+
+    public void Delete()
+    {
+        for (int i = 0; i < this.transform.childCount; i++)
+        {
+            Destroy(this.transform.GetChild(i).gameObject);
         }
     }
 }
