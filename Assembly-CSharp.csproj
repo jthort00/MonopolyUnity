@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\Dado.cs" />
+    <Compile Include="Assets\invitation_screen_script.cs" />
     <Compile Include="Assets\populate_online_grid_script.cs" />
     <Compile Include="Assets\online_screen_script.cs" />
     <Compile Include="Assets\Scripts\ServerLogic.cs" />
@@ -76,7 +77,7 @@
     <Compile Include="Assets\Intro_script.cs" />
     <Compile Include="Assets\Scripts\DiceCheck.cs" />
     <Compile Include="Assets\main_user_screen_script.cs" />
-    <Compile Include="Assets\invitation_screen_script.cs" />
+    <Compile Include="Assets\main_game_screen_script.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Fonts\airstrike.txt" />

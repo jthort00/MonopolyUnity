@@ -20,6 +20,7 @@ public class LogicScript1 : MonoBehaviour
     public GameObject Online_list_screen;
     public GameObject Lobby_screen;
     public GameObject Invitation_screen;
+    public GameObject Main_game_screen;
 
     public GameObject row_stuff;
     public GameObject online_list_row;
@@ -38,9 +39,11 @@ public class LogicScript1 : MonoBehaviour
     public Text inviteerror;
     public Text gamelobbytitle;
     public Text invitationtext;
-    public Text invitationreplies;
+ 
 
     public Button launchgame_button;
+    public Button rolldice_button;
+    public Button nexturn_button;
 
     private int current_gameid;
     private int invitation_gameid;
@@ -165,8 +168,8 @@ public class LogicScript1 : MonoBehaviour
                         ingame_list_row.GetComponent<populate_ingame_list_script>().Delete();
                         if (parts[0] == "1")
                         {
-                            invitationreplies.text = parts[1] + " has joined the game";
-                            invitationreplies.color = Color.green;
+                            inviteerror.text = parts[1] + " has joined the game";
+                            inviteerror.color = Color.green;
                             int i = 1;
                             while (i < parts.Length)
                             {
@@ -177,13 +180,19 @@ public class LogicScript1 : MonoBehaviour
 
                         if (parts[0] == "0")
                         {
-                            invitationreplies.text = parts[1] + " has rejected the invitation";
-                            invitationreplies.color = Color.red;
+                            inviteerror.text = parts[1] + " has rejected the invitation";
+                            inviteerror.color = Color.red;
                         }
                         break;
 
                     case 10: //Es tu turno
-                        //Enable botó de tirar els daus
+
+                        rolldice_button.gameObject.SetActive(true);
+                        break;
+
+                    case 11: //Ha empezado la partida 
+                        Main_game_screen.SetActive(true);
+                        Lobby_screen.SetActive(false);
                         break;
 
 
@@ -372,10 +381,36 @@ public class LogicScript1 : MonoBehaviour
     public void LaunchGame()
     {
         launched = 1;
-        //Botó a la pantalla principal per amagar o no la lobbyscreen
-        //Botó a la pantalla principal per tirar els daus i que retorni un número 
-        //Pujar el servidor al shiva/shiva2 per poder fer proves multijugador 
-        //Torns
+        Main_game_screen.SetActive(true);
+        Lobby_screen.SetActive(false);
+
+        string mensaje = "11/" + current_gameid;
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
     }
 
+    public void ShowLobbyScreen()
+    {
+        if (Lobby_screen.activeSelf == true)
+            Lobby_screen.SetActive(false);
+        else
+            Lobby_screen.SetActive(true);
+    }
+
+    public void RollDice()
+    {
+        //funció roll dice aquí
+        nexturn_button.gameObject.SetActive(true);
+    }
+
+    public void NextTurn()
+    {
+        rolldice_button.gameObject.SetActive(false);
+        nexturn_button.gameObject.SetActive(false);
+        string mensaje = "10/" + username.text + "/" + current_gameid;
+        byte[] msg = System.Text.Encoding.ASCII.GetBytes(mensaje);
+        server.Send(msg);
+    }
+
+    //Associar cada gameid a una peça en la partida. IMPORTANT!
 }

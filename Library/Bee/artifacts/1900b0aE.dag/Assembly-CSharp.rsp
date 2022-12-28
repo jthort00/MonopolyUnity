@@ -357,6 +357,7 @@
 "Assets/lobby_screen_script.cs"
 "Assets/LogicScript1.cs"
 "Assets/Login_screen_script.cs"
+"Assets/main_game_screen_script.cs"
 "Assets/main_user_screen_script.cs"
 "Assets/online_screen_script.cs"
 "Assets/populate_grid_script.cs"
